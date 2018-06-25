@@ -1,50 +1,25 @@
-from itertools import cycle
-
+import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.sankey import Sankey
 
-links_per_side = 6
+# Create some mock data
+t = np.arange(0.01, 10.0, 0.01)
+data1 = np.exp(t)
+data2 = np.sin(2 * np.pi * t)
 
+fig, ax1 = plt.subplots()
 
-def side(sankey, n=1):
-    """Generate a side chain."""
-    prior = len(sankey.diagrams)
-    for i in range(0, 2*n, 2):
-        sankey.add(flows=[1, -1], orientations=[-1, -1],
-                   patchlabel=str(prior + i),
-                   prior=prior + i - 1, connect=(1, 0), alpha=0.5)
-        sankey.add(flows=[1, -1], orientations=[1, 1],
-                   patchlabel=str(prior + i + 1),
-                   prior=prior + i, connect=(1, 0), alpha=0.5)
+color = 'tab:red'
+ax1.set_xlabel('time (s)')
+ax1.set_ylabel('exp', color=color)
+ax1.plot(t, data1, color=color)
+ax1.tick_params(axis='y', labelcolor=color)
 
+ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
-def corner(sankey):
-    """Generate a corner link."""
-    prior = len(sankey.diagrams)
-    sankey.add(flows=[1, -1], orientations=[0, 1],
-               patchlabel=str(prior), facecolor='k',
-               prior=prior - 1, connect=(1, 0), alpha=0.5)
+color = 'tab:blue'
+ax2.set_ylabel('sin', color=color)  # we already handled the x-label with ax1
+ax2.plot(t, data2, color=color)
+ax2.tick_params(axis='y', labelcolor=color)
 
-
-fig = plt.figure()
-ax = fig.add_subplot(1, 1, 1, xticks=[], yticks=[],
-                     title="Why would you want to do this?\n(But you could.)")
-sankey = Sankey(ax=ax, unit=None)
-sankey.add(flows=[1, -1], orientations=[0, 1],
-           patchlabel="0", facecolor='k',
-           rotation=45)
-side(sankey, n=links_per_side)
-corner(sankey)
-side(sankey, n=links_per_side)
-corner(sankey)
-side(sankey, n=links_per_side)
-corner(sankey)
-side(sankey, n=links_per_side)
-sankey.finish()
-# Notice:
-# 1. The alignment doesn't drift significantly (if at all; with 16007
-#    subdiagrams there is still closure).
-# 2. The first diagram is rotated 45 deg, so all other diagrams are rotated
-#    accordingly.
-
+fig.tight_layout()  # otherwise the right y-label is slightly clipped
 plt.show()
